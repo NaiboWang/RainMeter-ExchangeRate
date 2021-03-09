@@ -9,13 +9,13 @@ lastFetchDate = ""
 
 def fetch():
     global st, lastFetchTime, lastFetchDate
-    dt=datetime.now().hour + 8
+    dt = (datetime.utcnow().hour + 8) % 24
     if dt>9:
         url="http://web.juhe.cn:8080/finance/exchange/rmbquot?type=1&bank=&key=90f46fce44dade2b89d243980f5adfec"
         #url = "http://api.m.taobao.com/rest/api3.do?api=mtop.common.getTimestamp"
         strhtml = requests.get(url)
         st = json.loads(strhtml.text)
-        tt = datetime.now() + timedelta(hours=8)
+        tt = datetime.utcnow() + timedelta(hours=8)
         lastFetchDate = tt.strftime("%Y-%m-%d")
         lastFetchTime = tt.strftime("%H:%M:%S")
         #print(st)
