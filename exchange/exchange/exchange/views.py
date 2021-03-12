@@ -4,29 +4,33 @@ from datetime import datetime, timedelta
 from threading import Timer
 
 st = ""
-lastFetchTime = ""
-lastFetchDate = ""
+lastFetchStatus = ""
 
 def fetch():
-    global st, lastFetchTime, lastFetchDate
+    global st, lastFetchStatus
+    t = Timer(900, fetch)
+    t.start()
     dt = (datetime.utcnow().hour + 8) % 24
     if dt>9:
         url="http://web.juhe.cn:8080/finance/exchange/rmbquot?type=1&bank=&key=90f46fce44dade2b89d243980f5adfec"
         #url = "http://api.m.taobao.com/rest/api3.do?api=mtop.common.getTimestamp"
+        tt = datetime.utcnow() + timedelta(hours=8)
+        lastFetchStatus = "Fetching"
+        requests.adapters.DEFAULT_RETRIES = 5
+        s = requests.session()
+        s.keep_alive = False
         strhtml = requests.get(url)
         st = json.loads(strhtml.text)
-        tt = datetime.utcnow() + timedelta(hours=8)
-        lastFetchDate = tt.strftime("%Y-%m-%d")
-        lastFetchTime = tt.strftime("%H:%M:%S")
+        lastFetchStatus = "Fetched"
         #print(st)
-    t = Timer(900, fetch)
-    t.start()
+    else:
+        lastFetchTime = "Sleeping"
 
 def get_time():
     return st["data"]["t"]
 
 def get_rate(i=0,t=False):
-    global st, lastFetchTime, lastFetchDate
+    global st, lastFetchStatus
     if t:
         url="http://web.juhe.cn:8080/finance/exchange/rmbquot?type=1&bank=&key=90f46fce44dade2b89d243980f5adfec"
         strhtml = requests.get(url)
@@ -42,9 +46,9 @@ def get_rate(i=0,t=False):
     elif i == 4:
         return st["result"][0]["新加坡元"]["time"]
     elif i == 5:
-        return lastFetchDate
+        return lastFetchStatus
     else:
-        return lastFetchTime
+        return (datetime.utcnow() + timedelta(hours=8)).strftime("%H:%M:%S")
         
 
 def hello(request):
